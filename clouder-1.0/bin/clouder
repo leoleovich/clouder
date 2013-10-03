@@ -1,0 +1,133 @@
+#!/bin/bash
+
+PARTS="/tmp/clouder.parts"
+FSTAB="/tmp/clouder.fstab"
+
+D_LOG="/var/log/clouder/downloader.log"
+D_CFG="/etc/clouder/downloader.cfg"
+
+C_LOG="/var/log/clouder/creater.log"
+CK_LOG="/var/log/clouder/cooker.log"
+
+IMG="./os.img" # image os
+
+DEB=0 # type of OS: 0=rhel
+
+INFO="\033[37;1;42mINFO\033[0m"
+WARNING="\033[37;1;43mWARNING:\033[0m"
+ERROR="\033[37;1;41mERROR:\033[0m"
+
+MIN_ROOT_DEB=700
+MIN_ROOT_RHEL=1500
+
+
+test -f /usr/local/bin/clouder/clouder || ( echo -e "$ERROR clouder not found" ; exit 1 ) || exit 1
+test -f /usr/local/bin/clouder/creater || ( echo -e "$ERROR creater not found" ; exit 1 ) || exit 1
+test -f /usr/local/bin/clouder/downloader || ( echo -e "$ERROR downloader not found" ; exit 1 ) || exit 1
+
+supported_os="SUPPORTED OS: "`cat $D_CFG | awk '{ print $1 }' | sed ':a;N;$!ba;s/\n/, /g;s/0d0a/\n/g'`
+supported_fs="SUPPORTED FS: ext2, ext3, ext4, minix, msdos, vfat"
+supported_format="SUPPORTED FORMAT: raw, qcow2, tar"
+size_message="Minimal root-size in Megabytes is: Debian=600, RHEL=1100"
+help_message="
+Please, see <man clouder>\n
+$supported_os\n
+$size_message"
+while getopts ":r:f:s:v:o:i:h:p:S:" OPTION; do
+    case "$OPTION" in
+        r)      rootSize=`echo $OPTARG | grep -Eo '[0-9]+'` ;; #size of / part in MB
+        f)      fs="$OPTARG" ;; #type of fs /
+        s)      swapSize="$OPTARG";; #size of SWAP part in MB
+        v)      os_v="$OPTARG";; #os version
+        o)      out_f="$OPTARG";; #output format
+        i)      ip="$OPTARG";;
+        h)      hostname="$OPTARG";;
+        p)      password="$OPTARG";;
+	S)	script="$OPTARG";;
+        *)      echo -e $help_message && exit 0;;
+    esac
+done
+
+cat /etc/sudoers &>> $CK_LOG || ( echo -e "$ERROR you must be root" ; exit 1 ) || exit 1
+
+rm -rf $PARTS $FSTAB $D_LOG $C_LOG $CK_LOG $CO_LOG $IMG.* /tmp/clouder.* &> $CK_LOG \
+	|| echo -e "$ERROR unable to remove old files"
+
+echo -e "LABEL=root   /       ext4    defaults,noatime,barrier=0      0       1" >> $FSTAB
+
+if [ -z $os_v ];then
+	echo -e $help_message && exit 0
+fi
+
+if [ -z $swapSize ]; then
+	swapSize=0
+else
+	echo -e "LABEL=swap	swap	swap	defaults,noatime,barrier=0      0       0" >> $FSTAB
+fi
+
+if [ -z $fs ];then
+	fs="ext3"
+	echo -e "$INFO Root file system is $fs"
+elif [ 0 -eq 0`echo $supported_fs | grep -q $fs && echo 1` ]; then
+	echo -e "$ERROR: $supported_fs" 
+	exit 1
+fi
+
+if [ -z $out_f ];then
+	out_f="raw"
+	echo -e "$INFO Output file is $IMG.$out_f"
+elif [ 0 -eq 0`echo 0$supported_format | grep -q $out_f && echo 1` ]; then
+        echo -e "$ERROR: $supported_format"
+        exit 1
+fi
+
+
+if [ -z $ip ];then
+	ip="127.0.0.1"
+	echo -e "$INFO IP will be $ip"
+fi
+if [ -z $hostname ];then
+        hostname="localhost"
+	echo -e "$INFO Hostname will be $hostname"
+fi
+if [ -z $password ];then
+        password="qwerty"
+        echo -e "$INFO Password will be $password"
+fi
+if [ -z $script ] || ! [ -f $script ];then
+	script="/dev/null"
+fi
+tmp=`mktemp -d /tmp/clouder.XXX`
+
+if [ -z `cat $D_CFG | awk '{print $1}' | grep -x $os_v` ];then
+	echo -e "$ERROR: $supported_os"
+	exit 0
+else
+	MR=`cat $D_CFG | grep $os_v | awk '{ print $NF }'`
+	[[ $MR = *ubuntu* ]] && DEB=1
+	if [ -z $rootSize ]; then
+		if [ $DEB -eq 0 ];then
+			rootSize=$MIN_ROOT_RHEL
+		else
+			rootSize=$MIN_ROOT_DEB
+		fi
+		echo -e "$INFO root file system size is $rootSize"
+	fi
+	if [ $rootSize -lt $MIN_ROOT_DEB ] || [ $DEB -eq 0 ] && [ $rootSize -lt $MIN_ROOT_RHEL ]; then
+		echo -e "$ERROR: $size_message"
+		exit 1
+	fi
+
+fi
+
+
+/usr/local/bin/clouder/downloader $os_v $tmp $D_CFG $DEB $MR &
+/usr/local/bin/clouder/creater $tmp $rootSize $fs $IMG $PARTS $swapSize &
+
+for job in `jobs -p`
+do
+        wait $job
+done
+
+/usr/local/bin/clouder/cooker $tmp $os_v $DEB $ip $IMG $hostname $out_f $password $script
+exit 0

@@ -1,0 +1,29 @@
+#!/bin/bash
+INFO="\033[37;1;42mINFO\033[0m"
+WARNING="\033[37;1;43mWARNING:\033[0m"
+ERROR="\033[37;1;41mERROR:\033[0m"
+
+echo -e "$INFO Start downloading"
+
+os_v=$1
+tmp=$2
+
+LOG="/var/log/clouder/`basename $0`.log"
+CFG=$3
+
+DEB=$4
+MR=$5
+
+ARCH=`arch`
+
+echo "Start downloading os into $tmp" >> $LOG
+packages=netbase,ifupdown,openssh-server,gnupg
+if [ $DEB -eq 1 ];then
+	debootstrap --include=$packages,linux-image-server,apt-utils,man-db,vim --verbose $os_v $tmp $MR &>> $LOG || ( echo -e "$ERROR Fail downloading" ; exit 1 ) || exit 1
+else
+	rinse --verbose --distribution $os_v --directory $tmp --arch $ARCH --mirror $MR &>> $LOG || ( echo -e "$ERROR Fail downloading" ; exit 1 ) || exit 1
+fi
+
+echo -e "$INFO Finish downloading"
+
+exit 0

@@ -1,0 +1,4 @@
+/usr/local/bin/clouder
+/etc/clouder
+/var/log/clouder
+etc/apt/sources.list.d/

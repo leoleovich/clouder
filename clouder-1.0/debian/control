@@ -1,0 +1,13 @@
+Source: clouder
+Section: unknown
+Priority: extra
+Maintainer: Oleg Obleukhov <leoleovich@yandex-team.ru>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: <insert the upstream URL, if relevant>
+
+Package: clouder
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, bash, sed (>= 4.0), kpartx (>= 0.4.8-14), e2fsprogs (>=1.41.11), coreutils (>=7.4-2), debootstrap (>=1.0.37), tar (>=1.22), grub (<=0.98), grub-common (>=1.98), qemu-kvm (>=0.12.3), rinse (>=1.9)
+Description: simple tool for creating OS-image for qmeu kvm, lxc-container OR eine.
+ <insert long description, indented with spaces>

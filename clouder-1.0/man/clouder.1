@@ -1,0 +1,54 @@
+.Dd May 13, 2013
+.Dt clouder
+.Os
+.Sh NAME
+.Nm clouder
+.Nd simple tool for creating OS-image for qmeu kvm, lxc-container OR eine.
+
+.Sh SYNOPSIS
+.Nm clouder [rootSize osVersion] [ <advanced options> ]
+
+.Sh OPTIONS
+.Nm -r
+.Nd size of root file system in Megabytes. Minimal size for supported os - 700 Megabytes
+.br
+.Nm -f
+.Nd type of filesystem. Supported types: ext2, ext3, ext4, minix, msdos, vfat, by default is "ext3"
+.br
+.Nm -s
+.Nd size of swap in Megabytes
+.br
+.Nm -v
+.Nd version of Operating system. Supported os: precise, lucid, centos-6, slc-6
+.br
+.Nm -o
+.Nd output format: raw, qcow2, tar. By default is "raw"
+.br
+.Nm -p
+.Nd password: set root-password. By default is "qwerty"
+.br
+.Nm -S
+.Nd user script to execute into created operating system
+.br
+.Nm -i
+.Nd ip-address for created operating system. By default is "127.0.0.1"
+.br
+.Nm -h
+.Nd hostname for created operating system. By default is "localhost"
+
+.Sh RESULT
+.Nm file with one of supported output format in current directory.
+
+.Sh LOGS
+.Nm /var/log/clouder/*.log
+
+.Sh EXAMPLES
+.Nm clouder -v precise
+.br
+.Nm clouder -r 1500 -f ext4 -v centos-6 -i 178.154.221.161 -h leo.devfol.qa.yandex.net
+.br
+.Nm clouder -r 800 -f ext4 -s 300 -v lucid -o tar -i 178.154.221.161 -h leo.devfol.qa.yandex.net -p myPass
+
+.Sh AUTHOR
+.Nm leo - leoleovich@yadex-team.ru
+

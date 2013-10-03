@@ -1,0 +1,12 @@
+deb http://mirror.yandex.ru/ubuntu precise main restricted
+deb http://mirror.yandex.ru/ubuntu precise-updates main restricted
+deb http://mirror.yandex.ru/ubuntu precise-security main restricted
+
+deb http://dist.yandex.ru/system configs/all/
+deb http://dist.yandex.ru/system precise/all/
+deb http://dist.yandex.ru/system precise/amd64/
+deb http://dist.yandex.ru/common/ prestable/all/
+deb http://dist.yandex.ru/common/ prestable/amd64/
+
+deb http://dist.yandex.ru/yandex-precise stable/all/
+deb http://dist.yandex.ru/yandex-precise stable/amd64/

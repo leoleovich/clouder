@@ -1,0 +1,54 @@
+#!/bin/bash
+
+INFO="\033[37;1;42mINFO\033[0m"
+WARNING="\033[37;1;43mWARNING:\033[0m"
+ERROR="\033[37;1;41mERROR:\033[0m"
+
+echo -e "$INFO Start creating"
+
+tmp=$1
+rootSize=$2
+fs=$3
+LOG="/var/log/clouder/`basename $0`.log"
+IMG=$4
+parts=$5
+swapSize=$6
+
+startP="0" # sectors in cylinder -1 (start position) #2047
+byteSec="512" #bytes in sector
+let "lenght=rootSize * 1024 * 2"
+partitions="$startP,$lenght,L,*" #set boot partition
+
+if ! [ $swapSize -eq 0 ];then
+	let "startP=startP+lenght"
+	let "lenght=swapSize * 1024 * 2"
+	echo "SWAP SIZE IS $lenght" >> $LOG 
+
+	partitions=`echo "$partitions\\n$startP,$lenght,S,"`
+fi
+let "allSize=byteSec*(lenght+startP)"
+echo AlLSIZE: $allSize >> $LOG
+echo -e TABLE: $partitions >> $LOG
+
+echo "creating image file" &>> $LOG
+dd if=/dev/zero bs=1024 count=`expr $allSize / 1024` of=$IMG &>> $LOG || ( echo -e "$ERROR Fail creating" ; exit 1 ) || exit 1
+
+echo -e $partitions | sfdisk -uS --force $IMG &>> $LOG
+
+#formating
+kpartx -av $IMG > $parts || ( echo -e "$ERROR Fail creating KPARTX" ; exit 1 ) || exit 1
+
+rootdev="/dev/mapper/"`cat $parts | head -n1 | awk '{print $3}'`
+echo "Creating root partition" >> $LOG
+mkfs.$fs -L root -m 0 -I 128 $rootdev &>> $LOG || ( echo -e "$ERROR Fail creating /" ; exit 1 ) || exit 1
+
+if ! [ $swapSize -eq 0 ];then
+	swapdev="/dev/mapper/"`cat $parts | tail -n1 | awk '{print $3}'` || ( echo -e "$ERROR Fail creating SWAP" ; exit 1 ) || exit 1
+	echo "Creating swap partition" >> $LOG
+	mkswap -L swap $swapdev &>> $LOG
+fi
+
+tune2fs -i 0 -U 97e128e3-a209-4a34-81f7-c35fb9053e25 $rootdev &>>$LOG
+
+echo -e "$INFO Finish creating"
+exit 0

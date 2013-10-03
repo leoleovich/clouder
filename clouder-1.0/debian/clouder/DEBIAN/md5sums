@@ -1,0 +1,6 @@
+a5bd618867d3edbe4226e6f459ad1219  usr/local/bin/clouder/creater
+4a22bc97eaeb9c4cda19b5ea347baff3  usr/local/bin/clouder/cooker
+aec4c043eb28a8e34a8378aacd9a999b  usr/local/bin/clouder/downloader
+68fe664481ad817a6ac1b2ad2ab4ba66  usr/local/bin/clouder/clouder
+371f459b81835cb3105a12b9a6f0d745  usr/share/man/man1/clouder.1.gz
+a3142a3180b86ff3cc7352e252227615  usr/share/doc/clouder/changelog.gz

@@ -1,0 +1,125 @@
+#!/bin/bash
+
+INFO="\033[37;1;42mINFO\033[0m"
+WARNING="\033[37;1;43mWARNING:\033[0m"
+ERROR="\033[37;1;41mERROR:\033[0m"
+
+echo -e "$INFO Start cooking"
+TMP=$1
+LOG="/var/log/clouder/`basename $0`.log"
+PARTS="/tmp/clouder.parts"
+FSTAB="/tmp/clouder.fstab"
+os_v=$2
+DEB=$3
+IP=$4
+IMG=$5
+HOSTNAME=$6
+FORMAT=$7
+PASSWORD=$8
+SCRIPT=$9
+
+#BACKUPING
+(
+cp /etc/hostname /etc/hostname.bak || exit 1
+cp /etc/hosts /etc/hosts.bak || exit 1
+cp /etc/fstab /etc/fstab.bak || exit 1
+cp /etc/network/interfaces /etc/network/interfaces.bak || exit 1 
+cp /etc/shadow /etc/shadow.bak || exit 1
+) &>> $LOG || ( echo -e "$ERROR Fail cooking BKP" ; exit 1 ) || exit 1
+#BACKUPING
+
+tmp_mnt=$TMP"_mnt"
+mkdir $tmp_mnt &>>$LOG
+ls -ld $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking TMP" ; exit 1 ) || exit 1
+dev="/dev/mapper/"`cat $PARTS | head -n1 | awk '{print $3}'`
+mount $dev $tmp_mnt &>>$LOG || ( echo -e "$ERROR Fail cooking MOUNT" ; exit 1 ) || exit 1
+
+#copy to mount iso
+cp -r $TMP/* $tmp_mnt &>> $LOG
+cp $FSTAB $tmp_mnt/etc/fstab &>> $LOG
+
+#real device to chroot mounting
+mount --bind /dev $tmp_mnt/dev &>>$LOG || ( echo -e "$ERROR Fail cooking MOUNT DEV" ; exit 1 ) || exit 1
+
+mkdir $tmp_mnt/boot/grub/ && cp -r /usr/lib/grub/x86_64-pc/* $tmp_mnt/boot/grub/ &>>$LOG
+echo "(hd0)  /dev/sda" > $tmp_mnt/boot/grub/device.map
+
+#NETWORK
+echo "$HOSTNAME" > $tmp_mnt/etc/hostname
+echo -e "127.0.0.1 $HOSTNAME $HOSTNAME.localdomain\n$IP $HOSTNAME" > $tmp_mnt/etc/hosts
+
+if [ $DEB -eq 1 ]; then
+	chroot $tmp_mnt apt-get install -y grub &>>$LOG
+	chroot $tmp_mnt update-grub -y  &>> $LOG
+	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose/" &>> $LOG
+	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
+
+	echo -e "auto lo\n
+        iface lo inet loopback\n">$tmp_mnt/etc/network/interfaces
+
+	echo $IP | grep -vq "127.0.0.1" && echo -e "auto eth0\n
+	iface eth0 inet static\n
+	\taddress $IP\n
+	\tnetmask 255.255.255.128\n
+	\tnetwork 178.154.221.128\n
+	\tbroadcast 178.154.221.255\n
+	\tgateway 178.154.221.254\n
+	\tdns-nameservers 213.180.205.1\n">>$tmp_mnt/etc/network/interfaces 
+	
+	#Sources
+	cp -r /etc/clouder/$os_v* $tmp_mnt/etc/apt/sources.list.d/ &>> $LOG
+	chroot $tmp_mnt apt-get update &>> $LOG
+	#Passwd change
+	chroot $tmp_mnt sh -c "echo root:$PASSWORD | chpasswd" &>> $LOG
+
+else
+	chroot $tmp_mnt yum install -y kernel grub openssh-server man vim &>> $LOG
+	#instead update-grub
+	echo -e "
+	\ttimeout=3\n
+	title Linux (`chroot $tmp_mnt uname -a | awk '{print $3}'`)\n
+	\troot (hd0,0)\n
+	\tkernel /boot/`chroot $tmp_mnt ls -l /boot | grep vmlinuz | head -n1 | awk '{print $NF}'` root=LABEL=root ro quiet splash verbose\n
+	\tinitrd /boot/`chroot $tmp_mnt ls -l /boot | grep initr | head -n1 | awk '{print $NF}'`">$tmp_mnt/boot/grub/grub.conf
+	chroot $tmp_mnt ln -s /boot/grub/grub.conf /boot/grub/menu.lst &>> $LOG
+	#instead update-grub
+
+	echo $IP | grep -vq "127.0.0.1" && echo -e "DEVICE=eth0\n
+	BOOTPROTO=static\n
+	DHCPCLASS=\n
+	IPADDR=$IP\n
+	GATEWAY=178.154.221.254\n
+	NETMASK=255.255.255.128\n
+	MTU=1500\n
+	ONBOOT=yes\n">$tmp_mnt/etc/sysconfig/network-scripts/ifcfg-eth0
+
+	echo -e "NETWORKING=yes\n
+	NETWORKING_IPV6=no\n
+	HOSTNAME=$HOSTNAME\n">$tmp_mnt/etc/sysconfig/network
+
+	chroot $tmp_mnt sh -c "echo $PASSWORD | passwd root --stdin" &>> $LOG
+fi
+
+
+#installing cofigurated GRUB to MBR
+echo -e "device (hd0) os.img\nroot (hd0,0)\nsetup (hd0)" | grub --batch --no-floppy --device-map=/dev/null &>> $LOG || ( echo -e "$ERROR Fail cooking GRUB" ; exit 1 ) || exit 1
+
+#exec user script
+chroot $tmp_mnt < $SCRIPT &>> $LOG || echo -e "$ERROR Fail cooking USER SCRIPT"
+
+#convert and close image
+umount -v $tmp_mnt/dev &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT" ; exit 1 ) || exit 1
+
+if [ $FORMAT == "tar" ];then
+	tar -cf $IMG.tar $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit 1
+else
+	qemu-img convert -O $FORMAT $IMG $IMG.$FORMAT &>> $LOG  || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit
+fi
+
+umount -v $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT" ; exit 1 ) || exit 1
+kpartx -dv $IMG &>> $LOG || ( echo -e "$ERROR Fail cooking KPARTX" ; exit 1 ) || exit 1
+
+rm -r /tmp/clouder.* $IMG &>> $LOG
+
+echo -e "$INFO Finish cocking"
+exit 0
