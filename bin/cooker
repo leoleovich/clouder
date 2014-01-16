@@ -11,12 +11,11 @@ PARTS="/tmp/clouder.parts"
 FSTAB="/tmp/clouder.fstab"
 os_v=$2
 DEB=$3
-IP=$4
-IMG=$5
-HOSTNAME=$6
-FORMAT=$7
-PASSWORD=$8
-SCRIPT=$9
+IMG=$4
+HOSTNAME=$5
+FORMAT=$6
+PASSWORD=$7
+SCRIPT=$8
 
 #BACKUPING
 (
@@ -34,7 +33,7 @@ ls -ld $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking TMP" ; exit 1 ) || ex
 dev="/dev/mapper/"`cat $PARTS | head -n1 | awk '{print $3}'`
 mount $dev $tmp_mnt &>>$LOG || ( echo -e "$ERROR Fail cooking MOUNT" ; exit 1 ) || exit 1
 
-#copy to mount iso
+#copy to /mount iso
 cp -r $TMP/* $tmp_mnt &>> $LOG
 cp $FSTAB $tmp_mnt/etc/fstab &>> $LOG
 
@@ -54,18 +53,9 @@ if [ $DEB -eq 1 ]; then
 	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose/" &>> $LOG
 	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
 
-	echo -e "auto lo\n
-        iface lo inet loopback\n">$tmp_mnt/etc/network/interfaces
+	echo -e "auto lo\niface lo inet loopback\n
+	auto eth0\niface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
 
-	echo $IP | grep -vq "127.0.0.1" && echo -e "auto eth0\n
-	iface eth0 inet static\n
-	\taddress $IP\n
-	\tnetmask 255.255.255.128\n
-	\tnetwork 178.154.221.128\n
-	\tbroadcast 178.154.221.255\n
-	\tgateway 178.154.221.254\n
-	\tdns-nameservers 213.180.205.1\n">>$tmp_mnt/etc/network/interfaces 
-	
 	#Sources
 	cp -r /etc/clouder/$os_v* $tmp_mnt/etc/apt/sources.list.d/ &>> $LOG
 	chroot $tmp_mnt apt-get update &>> $LOG
@@ -85,13 +75,8 @@ else
 	#instead update-grub
 
 	echo $IP | grep -vq "127.0.0.1" && echo -e "DEVICE=eth0\n
-	BOOTPROTO=static\n
-	DHCPCLASS=\n
-	IPADDR=$IP\n
-	GATEWAY=178.154.221.254\n
-	NETMASK=255.255.255.128\n
-	MTU=1500\n
-	ONBOOT=yes\n">$tmp_mnt/etc/sysconfig/network-scripts/ifcfg-eth0
+	BOOTPROTO=dhcp
+	ONBOOT=yes">$tmp_mnt/etc/sysconfig/network-scripts/ifcfg-eth0
 
 	echo -e "NETWORKING=yes\n
 	NETWORKING_IPV6=no\n
@@ -110,15 +95,18 @@ chroot $tmp_mnt < $SCRIPT &>> $LOG || echo -e "$ERROR Fail cooking USER SCRIPT"
 #convert and close image
 umount -v $tmp_mnt/dev &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT" ; exit 1 ) || exit 1
 
-if [ $FORMAT == "tar" ];then
-	tar -cf $IMG.tar $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit 1
-else
-	qemu-img convert -O $FORMAT $IMG $IMG.$FORMAT &>> $LOG  || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit
+if [ $FORMAT == "tar" ];then # pack os files
+        cd $tmp_mnt && tar -cf $IMG.tar ./ &>> $LOG || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit 1
 fi
 
 umount -v $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT" ; exit 1 ) || exit 1
 kpartx -dv $IMG &>> $LOG || ( echo -e "$ERROR Fail cooking KPARTX" ; exit 1 ) || exit 1
 
+if [ $FORMAT == "tar.gz" ];then # pack whole image
+        tar -czf $IMG.tar.gz $IMG &>> $LOG || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit 1
+else
+        qemu-img convert -f raw -O $FORMAT $IMG $IMG.$FORMAT &>> $LOG  || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit
+fi
 rm -r /tmp/clouder.* $IMG &>> $LOG
 
 echo -e "$INFO Finish cocking"

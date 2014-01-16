@@ -27,7 +27,7 @@ test -f /usr/local/bin/clouder/downloader || ( echo -e "$ERROR downloader not fo
 
 supported_os="SUPPORTED OS: "`cat $D_CFG | awk '{ print $1 }' | sed ':a;N;$!ba;s/\n/, /g;s/0d0a/\n/g'`
 supported_fs="SUPPORTED FS: ext2, ext3, ext4, minix, msdos, vfat"
-supported_format="SUPPORTED FORMAT: raw, qcow2, tar"
+supported_format="SUPPORTED FORMAT: raw, qcow2, tar, tar.gz"
 size_message="Minimal root-size in Megabytes is: Debian=600, RHEL=1100"
 help_message="
 Please, see <man clouder>\n
@@ -40,7 +40,6 @@ while getopts ":r:f:s:v:o:i:h:p:S:" OPTION; do
         s)      swapSize="$OPTARG";; #size of SWAP part in MB
         v)      os_v="$OPTARG";; #os version
         o)      out_f="$OPTARG";; #output format
-        i)      ip="$OPTARG";;
         h)      hostname="$OPTARG";;
         p)      password="$OPTARG";;
 	S)	script="$OPTARG";;
@@ -79,12 +78,6 @@ if [ -z $out_f ];then
 elif [ 0 -eq 0`echo 0$supported_format | grep -q $out_f && echo 1` ]; then
         echo -e "$ERROR: $supported_format"
         exit 1
-fi
-
-
-if [ -z $ip ];then
-	ip="127.0.0.1"
-	echo -e "$INFO IP will be $ip"
 fi
 if [ -z $hostname ];then
         hostname="localhost"
@@ -129,5 +122,5 @@ do
         wait $job
 done
 
-/usr/local/bin/clouder/cooker $tmp $os_v $DEB $ip $IMG $hostname $out_f $password $script
+/usr/local/bin/clouder/cooker $tmp $os_v $DEB $IMG $hostname $out_f $password $script
 exit 0

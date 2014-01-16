@@ -1,3 +1,9 @@
+clouder (1.1.5) unstable; urgency=low
+
+  * qcow2 fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 16 Jan 2014 14:46:31 +0400
+
 clouder (1.1.4) unstable; urgency=low
 
   * user script fix
