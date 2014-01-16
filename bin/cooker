@@ -73,13 +73,12 @@ else
 	chroot $tmp_mnt ln -s /boot/grub/grub.conf /boot/grub/menu.lst &>> $LOG
 	#instead update-grub
 
-	echo $IP | grep -vq "127.0.0.1" && echo -e "DEVICE=eth0\n
+	echo $IP | grep -vq "127.0.0.1" && echo -e "DEVICE=eth0
 	BOOTPROTO=dhcp
 	ONBOOT=yes">$tmp_mnt/etc/sysconfig/network-scripts/ifcfg-eth0
 
-	echo -e "NETWORKING=yes\n
-	NETWORKING_IPV6=no\n
-	HOSTNAME=$HOSTNAME\n">$tmp_mnt/etc/sysconfig/network
+	echo -e "NETWORKING=yes
+	HOSTNAME=$HOSTNAME">$tmp_mnt/etc/sysconfig/network
 
 	chroot $tmp_mnt sh -c "echo $PASSWORD | passwd root --stdin" &>> $LOG
 fi
@@ -92,13 +91,8 @@ echo -e "device (hd0) os.img\nroot (hd0,0)\nsetup (hd0)" | grub --batch --no-flo
 chroot $tmp_mnt < $SCRIPT &>> $LOG || echo -e "$ERROR Fail cooking USER SCRIPT"
 
 #convert and close image
-umount -v $tmp_mnt/dev &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT" ; exit 1 ) || exit 1
-
-if [ $FORMAT == "tar" ];then # pack os files
-        cd $tmp_mnt && tar -cf $IMG.tar ./ &>> $LOG || ( echo -e "$ERROR Fail cooking CONVERT" ; exit 1 ) || exit 1
-fi
-
-umount -v $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT" ; exit 1 ) || exit 1
+umount -v $tmp_mnt/dev &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT /dev" ; exit 1 ) || exit 1
+umount -v $tmp_mnt &>> $LOG || ( echo -e "$ERROR Fail cooking UMOUNT /" ; exit 1 ) || exit 1
 kpartx -dv $IMG &>> $LOG || ( echo -e "$ERROR Fail cooking KPARTX" ; exit 1 ) || exit 1
 
 if [ $FORMAT == "tar.gz" ];then # pack whole image
