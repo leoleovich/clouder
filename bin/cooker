@@ -45,7 +45,7 @@ echo "(hd0)  /dev/sda" > $tmp_mnt/boot/grub/device.map
 
 #NETWORK
 echo "$HOSTNAME" > $tmp_mnt/etc/hostname
-echo -e "127.0.0.1 $HOSTNAME $HOSTNAME.localdomain\n$IP $HOSTNAME" > $tmp_mnt/etc/hosts
+echo -e "127.0.0.1 $HOSTNAME $HOSTNAME.localdomain\n127.0.0.1 $HOSTNAME" > $tmp_mnt/etc/hosts
 
 if [ $DEB -eq 1 ]; then
 	chroot $tmp_mnt apt-get install -y grub &>>$LOG
