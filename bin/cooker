@@ -53,8 +53,7 @@ if [ $DEB -eq 1 ]; then
 	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose/" &>> $LOG
 	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
 
-	echo -e "auto lo\niface lo inet loopback\n
-	auto eth0\niface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
+	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
 
 	#Sources
 	cp -r /etc/clouder/$os_v* $tmp_mnt/etc/apt/sources.list.d/ &>> $LOG
