@@ -1,3 +1,9 @@
+clouder (1.1.10) unstable; urgency=low
+
+  * rights FIX
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Wed, 22 Jan 2014 13:41:26 +0400
+
 clouder (1.1.9) unstable; urgency=low
 
   * centos-5 rem

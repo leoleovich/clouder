@@ -1,0 +1,5 @@
+[paysys5]
+name=Yandex RHEL5 Paysys repo
+baseurl=http://dist.yandex.ru/paysys-rhel/5/x86_64/
+gpgcheck=0
+enabled=1

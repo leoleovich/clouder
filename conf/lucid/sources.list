@@ -1,0 +1,9 @@
+deb http://mirror.yandex.ru/ubuntu lucid main restricted
+deb http://mirror.yandex.ru/ubuntu lucid-updates main restricted
+deb http://mirror.yandex.ru/ubuntu lucid universe
+deb http://mirror.yandex.ru/ubuntu lucid-updates universe
+deb http://mirror.yandex.ru/ubuntu lucid multiverse
+deb http://mirror.yandex.ru/ubuntu lucid-updates multiverse
+deb http://mirror.yandex.ru/ubuntu lucid-security main restricted
+deb http://mirror.yandex.ru/ubuntu lucid-security universe
+deb http://mirror.yandex.ru/ubuntu lucid-security multiverse

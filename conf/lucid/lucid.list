@@ -1,0 +1,7 @@
+deb http://dist.yandex.ru/common stable/all/
+deb http://dist.yandex.ru/common stable/amd64/
+deb http://dist.yandex.ru/system configs/all/
+deb http://dist.yandex.ru/system lucid/all/
+deb http://dist.yandex.ru/system lucid/amd64/
+deb http://dist.yandex.ru/yandex-lucid stable/all/
+deb http://dist.yandex.ru/yandex-lucid stable/amd64/

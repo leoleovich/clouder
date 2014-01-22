@@ -34,7 +34,7 @@ dev="/dev/mapper/"`cat $PARTS | head -n1 | awk '{print $3}'`
 mount $dev $tmp_mnt &>>$LOG || ( echo -e "$ERROR Fail cooking MOUNT" ; exit 1 ) || exit 1
 
 #copy to /mount iso
-cp -r $TMP/* $tmp_mnt &>> $LOG
+cp -rp $TMP/* $tmp_mnt &>> $LOG
 cp $FSTAB $tmp_mnt/etc/fstab &>> $LOG
 
 #real device to chroot mounting
@@ -50,18 +50,22 @@ echo -e "127.0.0.1 $HOSTNAME $HOSTNAME.localdomain\n127.0.0.1 $HOSTNAME" > $tmp_
 if [ $DEB -eq 1 ]; then
 	chroot $tmp_mnt apt-get install -y grub &>>$LOG
 	chroot $tmp_mnt update-grub -y  &>> $LOG
+	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+	chroot $tmp_mnt chmod 1777 /tmp
 	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose/" &>> $LOG
 	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
 
 	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
-
 	#Sources
-	cp -r /etc/clouder/$os_v* $tmp_mnt/etc/apt/sources.list.d/ &>> $LOG
+	cp -r /etc/clouder/$os_v/sources.list $tmp_mnt/etc/apt/sources.list &>> $LOG
+	cp -r /etc/clouder/$os_v/$os_v.list $tmp_mnt/etc/apt/sources.list.d/dist.list &>> $LOG
 	chroot $tmp_mnt apt-get update &>> $LOG
 	#Passwd change
 	chroot $tmp_mnt sh -c "echo root:$PASSWORD | chpasswd" &>> $LOG
-
 else
+	#Sources
+        cp -r /etc/clouder/$os_v/* $tmp_mnt/etc/yum.repos.d/ &>> $LOG
+
 	chroot $tmp_mnt yum install -y kernel grub openssh-server man vim &>> $LOG
 	#instead update-grub
 	echo -e "
