@@ -1,3 +1,9 @@
+clouder (1.1.11) unstable; urgency=low
+
+  * grub fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Wed, 22 Jan 2014 14:47:01 +0400
+
 clouder (1.1.10) unstable; urgency=low
 
   * rights FIX

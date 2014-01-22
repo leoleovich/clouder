@@ -52,8 +52,9 @@ if [ $DEB -eq 1 ]; then
 	chroot $tmp_mnt update-grub -y  &>> $LOG
 	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 	chroot $tmp_mnt chmod 1777 /tmp
-	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose/" &>> $LOG
+	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose console=ttyS0/" &>> $LOG
 	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
+	sed -i $tmp_mnt/boot/grub/menu.lst sed '/./,/^$/!d' &>> $LOG
 
 	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
 	#Sources
@@ -69,10 +70,10 @@ else
 	chroot $tmp_mnt yum install -y kernel grub openssh-server man vim &>> $LOG
 	#instead update-grub
 	echo -e "
-	\ttimeout=3\n
-	title Linux (`chroot $tmp_mnt uname -a | awk '{print $3}'`)\n
-	\troot (hd0,0)\n
-	\tkernel /boot/`chroot $tmp_mnt ls -l /boot | grep vmlinuz | head -n1 | awk '{print $NF}'` root=LABEL=root ro quiet splash verbose\n
+	\ttimeout=3
+	title Linux (`chroot $tmp_mnt uname -a | awk '{print $3}'`)
+	\troot (hd0,0)
+	\tkernel /boot/`chroot $tmp_mnt ls -l /boot | grep vmlinuz | head -n1 | awk '{print $NF}'` root=LABEL=root ro quiet splash verbose console=ttyS0
 	\tinitrd /boot/`chroot $tmp_mnt ls -l /boot | grep initr | head -n1 | awk '{print $NF}'`">$tmp_mnt/boot/grub/grub.conf
 	chroot $tmp_mnt ln -s /boot/grub/grub.conf /boot/grub/menu.lst &>> $LOG
 	#instead update-grub
