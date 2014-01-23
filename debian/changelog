@@ -1,3 +1,9 @@
+clouder (1.1.16) unstable; urgency=low
+
+  * rpm-build
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 23 Jan 2014 17:37:16 +0400
+
 clouder (1.1.15) unstable; urgency=low
 
   * locale-gen

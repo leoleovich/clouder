@@ -71,7 +71,7 @@ else
 	#Sources
         cp -r /etc/clouder/$os_v/* $tmp_mnt/etc/yum.repos.d/ &>> $LOG
 
-	chroot $tmp_mnt yum install -y kernel grub openssh-server man vim &>> $LOG
+	chroot $tmp_mnt yum install -y kernel grub openssh-server man vim rpm-build &>> $LOG
 	#instead update-grub
 	echo -e "
 	\ttimeout=3
