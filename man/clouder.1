@@ -22,7 +22,7 @@
 .Nd version of Operating system. Supported os: precise, lucid, centos-6, slc-6
 .br
 .Nm -o
-.Nd output format: raw, qcow2, tar. By default is "raw"
+.Nd output format: raw, qcow2, tar.gz. By default is "raw"
 .br
 .Nm -O
 .Nd output file: without output format extension. By default is "./os.img"
@@ -47,7 +47,9 @@
 .br
 .Nm clouder -r 1500 -f ext4 -v centos-6 -h leo.devfol.qa.yandex.net
 .br
-.Nm clouder -r 800 -f ext4 -s 300 -v lucid -o tar -h leo.devfol.qa.yandex.net -p myPass
+.Nm clouder -r 800 -f ext2 -s 300 -v precise -o tar.gz -h leo.devfol.qa.yandex.net -p myPass
+.br
+.Nm clouder -r 800 -f ext4 -s 300 -v lucid -o qcow2 -O /var/lib/myImage -h leo.devfol.qa.yandex.net -p myPass 
 
 .Sh AUTHOR
 .Nm leo - leoleovich@yadex-team.ru

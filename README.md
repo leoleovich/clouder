@@ -6,14 +6,11 @@ You can easily create custom-size image.
 ###WARNING: 
      Do not interrupt clouder. It may crush system
 
-
 ###NAME
      clouder — simple tool for creating OS-image for qmeu kvm, lxc-container OR eine.
 
-
 ###SYNOPSIS
      clouder [rootSize osVersion] [<advanced options>]
-
 
 ###OPTIONS
      -r — size of root file system in Megabytes. Minimal size for supported os - 700
@@ -22,27 +19,23 @@ You can easily create custom-size image.
      default is ext3
      -s — size of swap in Megabytes
      -v — version of Operating system. Supported os: precise, lucid, centos-6, slc-6
-     -o — output format: raw, qcow2, tar. By default is raw
+     -o — output format: raw, qcow2, tar.gz. By default is raw
      -O - output file: without output format extension. By default is "./os.img"
      -p — password: set root-password. By default is qwerty
      -S — user script to execute into created operating system
      -h — hostname for created operating system. By default is localhost
 
-
 ###RESULT
      file with one of supported output format in current directory.
-
 
 ###LOGS
      /var/log/clouder/*.log
 
-
 ###EXAMPLES
      clouder -v precise
      clouder -r 1500 -f ext4 -v centos-6 -h leo.devfol.qa.yandex.net
-     clouder -r 800 -f ext4 -s 300 -v lucid -o tar
-     leo.devfol.qa.yandex.net -p myPass
-
+     clouder -r 800 -f ext2 -s 300 -v precise -o tar.gz -h leo.devfol.qa.yandex.net -p myPass
+     clouder -r 800 -f ext4 -s 300 -v lucid -o qcow2 -O /var/lib/myImage -h leo.devfol.qa.yandex.net -p myPass
 
 ###AUTHOR
      leo - leoleovich@yadex-team.ru
