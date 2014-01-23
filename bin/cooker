@@ -48,13 +48,14 @@ echo "$HOSTNAME" > $tmp_mnt/etc/hostname
 echo -e "127.0.0.1 $HOSTNAME $HOSTNAME.localdomain\n127.0.0.1 $HOSTNAME" > $tmp_mnt/etc/hosts
 
 if [ $DEB -eq 1 ]; then
+	echo "APT::Cache-Limit "100000000";" > $tmp_mnt/etc/apt/apt.conf.d/00cache
 	chroot $tmp_mnt apt-get install -y grub &>>$LOG
 	chroot $tmp_mnt update-grub -y  &>> $LOG
 	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 	chroot $tmp_mnt chmod 1777 /tmp
 	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose console=ttyS0/" &>> $LOG
 	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
-	sed -i $tmp_mnt/boot/grub/menu.lst sed '/./,/^$/!d' &>> $LOG
+	sed '/./,/^$/!d' -i /boot/grub/menu.lst &>> $LOG
 
 	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
 	#Sources
