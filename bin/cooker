@@ -53,7 +53,7 @@ if [ $DEB -eq 1 ]; then
         cp -r /etc/clouder/$os_v/$os_v.list $tmp_mnt/etc/apt/sources.list.d/dist.list &>> $LOG
 	echo "APT::Cache-Limit "100000000";" > $tmp_mnt/etc/apt/apt.conf.d/00cache
 	chroot $tmp_mnt apt-get update &>> $LOG
-	chroot $tmp_mnt apt-get install -y --force-yes grub yandex-archive-keyring curl &>>$LOG
+	chroot $tmp_mnt apt-get install -y --force-yes grub yandex-archive-keyring curl vim telnet tcpdump &>>$LOG
 	
 	chroot $tmp_mnt update-grub -y &>> $LOG
 	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
@@ -71,7 +71,7 @@ else
 	#Sources
         cp -r /etc/clouder/$os_v/* $tmp_mnt/etc/yum.repos.d/ &>> $LOG
 
-	chroot $tmp_mnt yum install -y kernel grub openssh-server openssh-clients man vim rpm-build &>> $LOG
+	chroot $tmp_mnt yum install -y kernel grub openssh-server openssh-clients man vim rpm-build telnet tcpdump &>> $LOG
 	#instead update-grub
 	echo -e "
 	\ttimeout=3

@@ -1,3 +1,9 @@
+clouder (1.1.19) unstable; urgency=low
+
+  * telnet tcpdump
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 23 Jan 2014 21:57:33 +0400
+
 clouder (1.1.18) unstable; urgency=low
 
   * curl deb

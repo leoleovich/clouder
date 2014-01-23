@@ -19,7 +19,7 @@ ARCH=`arch`
 echo "Start downloading os into $tmp" >> $LOG
 packages=netbase,ifupdown,openssh-server,gnupg
 if [ $DEB -eq 1 ];then
-	debootstrap --include=$packages,linux-image-server,apt-utils,man-db,vim --verbose $os_v $tmp $MR &>> $LOG || ( echo -e "$ERROR Fail downloading" ; exit 1 ) || exit 1
+	debootstrap --include=$packages,linux-image-server,apt-utils,man-db --verbose $os_v $tmp $MR &>> $LOG || ( echo -e "$ERROR Fail downloading" ; exit 1 ) || exit 1
 else
 	rinse --verbose --distribution $os_v --directory $tmp --arch $ARCH --mirror $MR &>> $LOG || ( echo -e "$ERROR Fail downloading" ; exit 1 ) || exit 1
 fi
