@@ -53,18 +53,20 @@ if [ $DEB -eq 1 ]; then
         cp -r /etc/clouder/$os_v/$os_v.list $tmp_mnt/etc/apt/sources.list.d/dist.list &>> $LOG
 	echo "APT::Cache-Limit "100000000";" > $tmp_mnt/etc/apt/apt.conf.d/00cache
 	chroot $tmp_mnt apt-get update &>> $LOG
-
-	chroot $tmp_mnt apt-get install -y grub yandex-archive-keyring &>>$LOG
-	chroot $tmp_mnt update-grub -y  &>> $LOG
+	chroot $tmp_mnt apt-get install -y --force-yes grub yandex-archive-keyring &>>$LOG
+	
+	chroot $tmp_mnt update-grub -y &>> $LOG
 	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 	chroot $tmp_mnt chmod 1777 /tmp
-	sed -i $tmp_mnt/boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose console=ttyS0/" &>> $LOG
-	sed -i $tmp_mnt/boot/grub/menu.lst -e '/^#/d' &>> $LOG
-	sed '/./,/^$/!d' -i /boot/grub/menu.lst &>> $LOG
+	chroot $tmp_mnt sed -i /boot/grub/menu.lst -e "s/root=.*/root=LABEL=root ro quiet splash verbose console=ttyS0/" &>> $LOG
+	chroot $tmp_mnt sed -i /boot/grub/menu.lst -e '/^#/d' &>> $LOG
+	chroot $tmp_mnt sed '/./,/^$/!d' -i /boot/grub/menu.lst &>> $LOG
 
 	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
 	#Passwd change
 	chroot $tmp_mnt sh -c "echo root:$PASSWORD | chpasswd" &>> $LOG
+	#locale
+	chroot $tmp_mnt locale-gen en_US en_US.UTF-8 ru_RU.utf8
 else
 	#Sources
         cp -r /etc/clouder/$os_v/* $tmp_mnt/etc/yum.repos.d/ &>> $LOG

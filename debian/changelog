@@ -1,3 +1,9 @@
+clouder (1.1.14) unstable; urgency=low
+
+  * keyring fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 23 Jan 2014 16:41:36 +0400
+
 clouder (1.1.13) unstable; urgency=low
 
   * keyring fix
