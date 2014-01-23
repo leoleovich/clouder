@@ -26,7 +26,7 @@ You can easily create custom-size image.
      -h — hostname for created operating system. By default is localhost
 
 ###RESULT
-     file with one of supported output format in current directory.
+     Custom format image with any size, fs or type of OS version, configured by yourself
 
 ###LOGS
      /var/log/clouder/*.log
