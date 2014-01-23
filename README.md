@@ -23,6 +23,7 @@ You can easily create custom-size image.
      -s — size of swap in Megabytes
      -v — version of Operating system. Supported os: precise, lucid, centos-6, slc-6
      -o — output format: raw, qcow2, tar. By default is raw
+     -O - output file: without output format extension. By default is "./os.img"
      -p — password: set root-password. By default is qwerty
      -S — user script to execute into created operating system
      -h — hostname for created operating system. By default is localhost
