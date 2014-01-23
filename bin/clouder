@@ -9,8 +9,6 @@ D_CFG="/etc/clouder/downloader.cfg"
 C_LOG="/var/log/clouder/creater.log"
 CK_LOG="/var/log/clouder/cooker.log"
 
-IMG="./os.img" # image os
-
 DEB=0 # type of OS: 0=rhel
 
 INFO="\033[37;1;42mINFO\033[0m"
@@ -33,7 +31,7 @@ help_message="
 Please, see <man clouder>\n
 $supported_os\n
 $size_message"
-while getopts ":r:f:s:v:o:i:h:p:S:" OPTION; do
+while getopts ":r:f:s:v:o:i:h:p:S:O:" OPTION; do
     case "$OPTION" in
         r)      rootSize=`echo $OPTARG | grep -Eo '[0-9]+'` ;; #size of / part in MB
         f)      fs="$OPTARG" ;; #type of fs /
@@ -43,13 +41,14 @@ while getopts ":r:f:s:v:o:i:h:p:S:" OPTION; do
         h)      hostname="$OPTARG";;
         p)      password="$OPTARG";;
 	S)	script="$OPTARG";;
+	O)      img="$OPTARG";;
         *)      echo -e $help_message && exit 0;;
     esac
 done
 
 cat /etc/sudoers &>> $CK_LOG || ( echo -e "$ERROR you must be root" ; exit 1 ) || exit 1
 
-rm -rf $PARTS $FSTAB $D_LOG $C_LOG $CK_LOG $CO_LOG $IMG.* /tmp/clouder.* &> $CK_LOG \
+rm -rf $PARTS $FSTAB $D_LOG $C_LOG $CK_LOG $CO_LOG $img.* /tmp/clouder.* &> $CK_LOG \
 	|| echo -e "$ERROR unable to remove old files"
 
 if [ -z $os_v ];then
@@ -58,7 +57,7 @@ fi
 
 if [ -z $fs ];then
 	fs="ext3"
-	echo -e "$INFO Root file system is $fs"
+	echo -e "$INFO Root file system will be $fs"
 elif [ 0 -eq 0`echo $supported_fs | grep -q $fs && echo 1` ]; then
 	echo -e "$ERROR: $supported_fs" 
 	exit 1
@@ -70,11 +69,9 @@ if [ -z $swapSize ]; then
 else
         echo -e "LABEL=swap     swap    swap    defaults,noatime,barrier=0      0       0" >> $FSTAB
 fi
-
-
 if [ -z $out_f ];then
 	out_f="raw"
-	echo -e "$INFO Output file is $IMG.$out_f"
+	echo -e "$INFO Output format will be $out_f"
 elif [ 0 -eq 0`echo 0$supported_format | grep -q $out_f && echo 1` ]; then
         echo -e "$ERROR: $supported_format"
         exit 1
@@ -90,6 +87,13 @@ fi
 if [ -z $script ] || ! [ -f $script ];then
 	script="/dev/null"
 fi
+
+if [ -z $img ]; then
+	img="./os.img"
+	echo -e "$INFO outfile will be $img"
+else
+	mkdir -p `dirname $img`
+fi
 tmp=`mktemp -d /tmp/clouder.XXX`
 
 if [ -z `cat $D_CFG | awk '{print $1}' | grep -x $os_v` ];then
@@ -104,7 +108,7 @@ else
 		else
 			rootSize=$MIN_ROOT_DEB
 		fi
-		echo -e "$INFO root file system size is $rootSize"
+		echo -e "$INFO root file system size will be $rootSize"
 	fi
 	if [ $rootSize -lt $MIN_ROOT_DEB ] || [ $DEB -eq 0 ] && [ $rootSize -lt $MIN_ROOT_RHEL ]; then
 		echo -e "$ERROR: $size_message"
@@ -115,12 +119,12 @@ fi
 
 
 /usr/local/bin/clouder/downloader $os_v $tmp $D_CFG $DEB $MR &
-/usr/local/bin/clouder/creater $tmp $rootSize $fs $IMG $PARTS $swapSize &
+/usr/local/bin/clouder/creater $tmp $rootSize $fs $img $PARTS $swapSize &
 
 for job in `jobs -p`
 do
         wait $job
 done
 
-/usr/local/bin/clouder/cooker $tmp $os_v $DEB $IMG $hostname $out_f $password $script
+/usr/local/bin/clouder/cooker $tmp $os_v $DEB $img $hostname $out_f $password $script
 exit 0
