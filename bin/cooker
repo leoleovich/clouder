@@ -53,7 +53,7 @@ if [ $DEB -eq 1 ]; then
         cp -r /etc/clouder/$os_v/$os_v.list $tmp_mnt/etc/apt/sources.list.d/dist.list &>> $LOG
 	echo "APT::Cache-Limit "100000000";" > $tmp_mnt/etc/apt/apt.conf.d/00cache
 	chroot $tmp_mnt apt-get update &>> $LOG
-	chroot $tmp_mnt apt-get install -y --force-yes grub yandex-archive-keyring &>>$LOG
+	chroot $tmp_mnt apt-get install -y --force-yes grub yandex-archive-keyring curl &>>$LOG
 	
 	chroot $tmp_mnt update-grub -y &>> $LOG
 	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
