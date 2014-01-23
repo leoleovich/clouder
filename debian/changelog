@@ -1,3 +1,9 @@
+clouder (1.1.15) unstable; urgency=low
+
+  * locale-gen
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 23 Jan 2014 16:57:58 +0400
+
 clouder (1.1.14) unstable; urgency=low
 
   * keyring fix

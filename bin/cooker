@@ -66,7 +66,7 @@ if [ $DEB -eq 1 ]; then
 	#Passwd change
 	chroot $tmp_mnt sh -c "echo root:$PASSWORD | chpasswd" &>> $LOG
 	#locale
-	chroot $tmp_mnt locale-gen en_US en_US.UTF-8 ru_RU.utf8
+	chroot $tmp_mnt locale-gen en_US en_US.UTF-8 ru_RU.utf8 &>> $LOG
 else
 	#Sources
         cp -r /etc/clouder/$os_v/* $tmp_mnt/etc/yum.repos.d/ &>> $LOG
