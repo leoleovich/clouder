@@ -10,7 +10,7 @@ You can easily create custom-size image.
      clouder — simple tool for creating OS-image for qmeu kvm, lxc-container OR eine.
 
 ###SYNOPSIS
-     clouder [rootSize osVersion] [<advanced options>]
+     clouder [osVersion] [<advanced options>]
 
 ###OPTIONS
      -r — size of root file system in Megabytes. Minimal size for supported os - 700
