@@ -1,3 +1,9 @@
+clouder (1.1.13) unstable; urgency=low
+
+  * keyring fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 23 Jan 2014 16:16:47 +0400
+
 clouder (1.1.12) unstable; urgency=low
 
   * APT::Cache-Limit. fix
