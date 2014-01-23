@@ -3,18 +3,19 @@ clouder
 Tool for create qcow2 or raw image with Ubuntu, RHEL, CentOS.
 You can easily create custom-size image.
 
-WARNING: Do not interrupt clouder. It may crush system
+###WARNING: 
+     Do not interrupt clouder. It may crush system
 
 
-NAME
+###NAME
      clouder — simple tool for creating OS-image for qmeu kvm, lxc-container OR eine.
 
 
-SYNOPSIS
+###SYNOPSIS
      clouder [rootSize osVersion] [<advanced options>]
 
 
-OPTIONS
+###OPTIONS
      -r — size of root file system in Megabytes. Minimal size for supported os - 700
      Megabytes
      -f — type of filesystem. Supported types: ext2, ext3, ext4, minix, msdos, vfat, by
@@ -27,20 +28,20 @@ OPTIONS
      -h — hostname for created operating system. By default is localhost
 
 
-RESULT
+###RESULT
      file with one of supported output format in current directory.
 
 
-LOGS
+###LOGS
      /var/log/clouder/*.log
 
 
-EXAMPLES
+###EXAMPLES
      clouder -v precise
      clouder -r 1500 -f ext4 -v centos-6 -h leo.devfol.qa.yandex.net
      clouder -r 800 -f ext4 -s 300 -v lucid -o tar
      leo.devfol.qa.yandex.net -p myPass
 
 
-AUTHOR
+###AUTHOR
      leo - leoleovich@yadex-team.ru
