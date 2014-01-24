@@ -93,7 +93,7 @@ else
 fi
 
 #installing cofigurated GRUB to MBR
-echo -e "device (hd0) os.img\nroot (hd0,0)\nsetup (hd0)" | grub --batch --no-floppy --device-map=/dev/null &>> $LOG || ( echo -e "$ERROR Fail cooking GRUB" ; exit 1 ) || exit 1
+echo -e "device (hd0) $IMG\nroot (hd0,0)\nsetup (hd0)" | grub --batch --no-floppy --device-map=/dev/null &>> $LOG || ( echo -e "$ERROR Fail cooking GRUB" ; exit 1 ) || exit 1
 
 #exec user script
 chroot $tmp_mnt < $SCRIPT &>> $LOG || echo -e "$ERROR Fail cooking USER SCRIPT"

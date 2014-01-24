@@ -1,3 +1,9 @@
+clouder (1.1.23) unstable; urgency=low
+
+  * grub install fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Fri, 24 Jan 2014 14:29:50 +0400
+
 clouder (1.1.22) unstable; urgency=low
 
   * bind-utils bind9-host dnsutils
