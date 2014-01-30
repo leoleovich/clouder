@@ -18,10 +18,10 @@ ERROR="\033[37;1;41mERROR:\033[0m"
 MIN_ROOT_DEB=700
 MIN_ROOT_RHEL=1500
 
-
 test -f /usr/local/bin/clouder/clouder || ( echo -e "$ERROR clouder not found" ; exit 1 ) || exit 1
 test -f /usr/local/bin/clouder/creater || ( echo -e "$ERROR creater not found" ; exit 1 ) || exit 1
 test -f /usr/local/bin/clouder/downloader || ( echo -e "$ERROR downloader not found" ; exit 1 ) || exit 1
+test -f /usr/local/bin/clouder/cooker || ( echo -e "$ERROR cooker not found" ; exit 1 ) || exit 1
 
 supported_os="SUPPORTED OS: "`cat $D_CFG | awk '{ print $1 }' | sed ':a;N;$!ba;s/\n/, /g;s/0d0a/\n/g'`
 supported_fs="SUPPORTED FS: ext2, ext3, ext4, minix, msdos, vfat"
@@ -49,7 +49,7 @@ done
 cat /etc/sudoers &>> $CK_LOG || ( echo -e "$ERROR you must be root" ; exit 1 ) || exit 1
 
 umount /tmp/clouder.*/* &> /dev/null
-rm -rf $PARTS $FSTAB $D_LOG $C_LOG $CK_LOG $CO_LOG $img.* /tmp/clouder.* &> $CK_LOG \
+rm -rf $PARTS $FSTAB $D_LOG $C_LOG $CK_LOG $CO_LOG $img.* /tmp/clouder.* &>> $CK_LOG \
 	|| echo -e "$ERROR unable to remove old files"
 
 if [ -z $os_v ];then
