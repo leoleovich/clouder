@@ -1,3 +1,9 @@
+clouder (1.1.24) unstable; urgency=low
+
+  * dhcp client fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 30 Jan 2014 13:51:13 +0400
+
 clouder (1.1.23) unstable; urgency=low
 
   * grub install fix
