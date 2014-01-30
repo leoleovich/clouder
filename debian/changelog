@@ -1,3 +1,9 @@
+clouder (1.1.26) unstable; urgency=low
+
+  * resolv.conf fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 30 Jan 2014 14:59:43 +0400
+
 clouder (1.1.25) unstable; urgency=low
 
   * bash-completion added
