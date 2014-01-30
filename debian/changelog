@@ -1,3 +1,9 @@
+clouder (1.1.32) unstable; urgency=low
+
+  * resolv.conf fix for centos
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Fri, 31 Jan 2014 01:22:53 +0400
+
 clouder (1.1.31) unstable; urgency=low
 
   * resolv.conf fix for centos
