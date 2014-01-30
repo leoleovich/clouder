@@ -1,3 +1,9 @@
+clouder (1.1.29) unstable; urgency=low
+
+  * resolvconf fix
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Thu, 30 Jan 2014 19:45:29 +0400
+
 clouder (1.1.28) unstable; urgency=low
 
   * resolvconf fix
