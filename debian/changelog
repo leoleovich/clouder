@@ -1,3 +1,9 @@
+clouder (1.1.34) unstable; urgency=low
+
+  * dhcp fix in lucid
+
+ -- Oleg Obleukhov <leoleovich@yandex-team.ru>  Fri, 31 Jan 2014 02:49:50 +0400
+
 clouder (1.1.33) unstable; urgency=low
 
   * crash-system protection
