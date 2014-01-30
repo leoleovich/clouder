@@ -69,6 +69,7 @@ if [ $DEB -eq 1 ]; then
 	chroot $tmp_mnt locale-gen en_US en_US.UTF-8 ru_RU.utf8 &>> $LOG
 	#dhcp-client config
 	cp /etc/clouder/dhclient.conf $tmp_mnt/etc/dhcp/dhclient.conf &>> $LOG
+	cp /etc/clouder/dhclient.conf $tmp_mnt/etc/dhcp3/dhclient.conf &>> $LOG
 	rm $tmp_mnt/etc/resolvconf/resolv.conf.d/* $tmp_mnt/etc/resolv.conf &>> $LOG
 	cp /etc/clouder/resolv.conf $tmp_mnt/etc/resolv.conf &>> $LOG
 	chroot $tmp_mnt ln -s /etc/resolv.conf /etc/resolvconf/resolv.conf.d/original &>> $LOG
@@ -89,7 +90,8 @@ else
 
 	echo $IP | grep -vq "127.0.0.1" && echo -e "DEVICE=eth0
 	BOOTPROTO=dhcp
-	ONBOOT=yes">$tmp_mnt/etc/sysconfig/network-scripts/ifcfg-eth0
+	ONBOOT=yes
+	PEERDNS=no">$tmp_mnt/etc/sysconfig/network-scripts/ifcfg-eth0
 
 	echo -e "NETWORKING=yes
 	HOSTNAME=$HOSTNAME">$tmp_mnt/etc/sysconfig/network
