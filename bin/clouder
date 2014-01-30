@@ -48,6 +48,7 @@ done
 
 cat /etc/sudoers &>> $CK_LOG || ( echo -e "$ERROR you must be root" ; exit 1 ) || exit 1
 
+umount /tmp/clouder.*/* &> /dev/null
 rm -rf $PARTS $FSTAB $D_LOG $C_LOG $CK_LOG $CO_LOG $img.* /tmp/clouder.* &> $CK_LOG \
 	|| echo -e "$ERROR unable to remove old files"
 
