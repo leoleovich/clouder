@@ -51,9 +51,9 @@ if [ $DEB -eq 1 ]; then
 	#Sources and install
         cp -r /etc/clouder/$os_v/sources.list $tmp_mnt/etc/apt/sources.list &>> $LOG
         cp -r /etc/clouder/$os_v/$os_v.list $tmp_mnt/etc/apt/sources.list.d/dist.list &>> $LOG
-	echo "APT::Cache-Limit "100000000";" > $tmp_mnt/etc/apt/apt.conf.d/00cache
+	echo "APT::Cache-Limit "10000000000";" > $tmp_mnt/etc/apt/apt.conf.d/00cache
 	chroot $tmp_mnt apt-get update &>> $LOG
-	chroot $tmp_mnt apt-get install -y --force-yes grub resolvconf yandex-archive-keyring curl vim telnet tcpdump dnsutils bind9-host bash-completion &>>$LOG
+	chroot $tmp_mnt apt-get install -y --force-yes grub resolvconf yandex-archive-keyring curl wget vim telnet tcpdump dnsutils bind9-host bash-completion &>>$LOG
 	
 	chroot $tmp_mnt update-grub -y &>> $LOG
 	chroot $tmp_mnt ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
@@ -62,7 +62,7 @@ if [ $DEB -eq 1 ]; then
 	chroot $tmp_mnt sed -i /boot/grub/menu.lst -e '/^#/d' &>> $LOG
 	chroot $tmp_mnt sed '/./,/^$/!d' -i /boot/grub/menu.lst &>> $LOG
 
-	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp">$tmp_mnt/etc/network/interfaces
+	echo -e "auto lo\n\tiface lo inet loopback\nauto eth0\n\tiface eth0 inet dhcp\niface eth0 inet6 dhcp\n\tup ip -6 route add default via fe80::1 dev \$IFACE">$tmp_mnt/etc/network/interfaces
 	#Passwd change
 	chroot $tmp_mnt sh -c "echo root:$PASSWORD | chpasswd" &>> $LOG
 	#locale
@@ -70,14 +70,17 @@ if [ $DEB -eq 1 ]; then
 	#dhcp-client config
 	cp /etc/clouder/dhclient.conf $tmp_mnt/etc/dhcp/dhclient.conf &>> $LOG
 	cp /etc/clouder/dhclient.conf $tmp_mnt/etc/dhcp3/dhclient.conf &>> $LOG
+	#disable updating resolv.conf and copy our
 	rm $tmp_mnt/etc/resolvconf/resolv.conf.d/* $tmp_mnt/etc/resolv.conf &>> $LOG
 	cp /etc/clouder/resolv.conf $tmp_mnt/etc/resolv.conf &>> $LOG
 	chroot $tmp_mnt ln -s /etc/resolv.conf /etc/resolvconf/resolv.conf.d/original &>> $LOG
+	cp /etc/clouder/nodnsupdate $tmp_mnt/etc/dhcp/dhclient-enter-hooks.d/nodnsupdate &>> $LOG
+	cp /etc/clouder/nodnsupdate $tmp_mnt/etc/dhcp3/dhclient-enter-hooks.d/nodnsupdate &>> $LOG
 else
 	#Sources
         cp -r /etc/clouder/$os_v/* $tmp_mnt/etc/yum.repos.d/ &>> $LOG
 
-	chroot $tmp_mnt yum install -y kernel grub openssh-server openssh-clients man vim rpm-build telnet tcpdump bind-utils bash-completion &>> $LOG
+	chroot $tmp_mnt yum install -y kernel grub openssh-server openssh-clients man vim wget rpm-build telnet tcpdump bind-utils bash-completion &>> $LOG
 	#instead update-grub
 	echo -e "
 	\ttimeout=3
