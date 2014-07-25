@@ -18,7 +18,7 @@ You can easily create custom-size image.
      -f — type of filesystem. Supported types: ext2, ext3, ext4, minix, msdos, vfat, by
      default is ext3
      -s — size of swap in Megabytes
-     -v — version of Operating system. Supported os: precise, lucid, centos-6, slc-6
+     -v — version of Operating system. Supported os: trusty, precise, lucid, centos-6, slc-6
      -o — output format: raw, qcow2, tar.gz. By default is raw
      -O - output file: without output format extension. By default is "./os.img"
      -p — password: set root-password. By default is qwerty
